@@ -51,7 +51,6 @@ export function Sponsors({ username }) {
   if (error) return <div>Error: {error}</div>;
   if (!sponsors) return <div>No sponsor data available.</div>;
 
-
   const all = [
     ...(sponsors.current ? sponsors.current : []),
     ...(sponsors.past ? sponsors.past : []),
@@ -61,10 +60,13 @@ export function Sponsors({ username }) {
     <>
       {all && all.length > 0 ? (
         <ul className="flex flex-wrap gap-4 list-none">
-          {all.map((sponsor) => (
+          {all.map(sponsor => (
             <li key={sponsor.username} className="">
-              <a href={`https://github.com/${sponsor.username}`} className="block"
-                 title={`${sponsor.username}`}>
+              <a
+                href={`https://github.com/${sponsor.username}`}
+                className="block"
+                title={`${sponsor.username}`}
+              >
                 <img
                   src={sponsor.avatar}
                   alt={sponsor.username}
