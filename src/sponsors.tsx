@@ -43,7 +43,7 @@ export function Sponsors({ username, refreshInterval = 60 * 60 * 1000 }: Sponsor
   return (
     <>
       {all.length > 0 ? (
-        <ul className="flex flex-wrap gap-4 list-none" aria-label="Project sponsors">
+        <ul className="flex flex-wrap gap-4 list-none pl-0" aria-label="Project sponsors">
           {all.map(sponsor => (
             <li key={sponsor.username}>
               <a

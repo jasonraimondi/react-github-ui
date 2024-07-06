@@ -21,7 +21,7 @@ export function Contributors({ owner, repo, refreshInterval = 60 * 60 * 1000 }: 
   const sortedContributors = [...data].sort((a, b) => b.contributions - a.contributions);
 
   return (
-    <ul className="flex flex-wrap gap-4 list-none" aria-label="Project contributors">
+    <ul className="flex flex-wrap gap-4 list-none pl-0" aria-label="Project contributors">
       {sortedContributors.map(contributor => (
         <li key={contributor.login}>
           <a
