@@ -1,36 +1,9 @@
 import { useState, useEffect } from "react";
-
-interface Contributor {
-  login: string;
-  avatar_url: string;
-  contributions: number;
-}
-
-interface ContributorsProps {
-  owner: string;
-  repo: string;
-}
-
-interface CachedData {
-  data: Contributor[];
-  timestamp: number;
-}
+import { getCachedData, setCachedData } from "./cache";
+import { Contributor, ContributorsProps } from "./index";
 
 const CACHE_KEY = "github_contributors";
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-function getCachedData(): CachedData | null {
-  const cachedData = localStorage.getItem(CACHE_KEY);
-  return cachedData ? JSON.parse(cachedData) : null;
-}
-
-function setCachedData(data: Contributor[]): void {
-  const cacheData: CachedData = {
-    data,
-    timestamp: Date.now(),
-  };
-  localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-}
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 export function Contributors({ owner, repo }: ContributorsProps) {
   const [contributors, setContributors] = useState<Contributor[]>([]);
@@ -40,7 +13,7 @@ export function Contributors({ owner, repo }: ContributorsProps) {
   useEffect(() => {
     const fetchContributors = async () => {
       try {
-        const cachedData = getCachedData();
+        const cachedData = getCachedData(CACHE_KEY);
         if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
           setContributors(cachedData.data);
           setLoading(false);
@@ -63,7 +36,7 @@ export function Contributors({ owner, repo }: ContributorsProps) {
         }
         const data: Contributor[] = await response.json();
         setContributors(data);
-        setCachedData(data);
+        setCachedData(CACHE_KEY, data);
       } catch (err) {
         console.error("Error fetching from API:", err);
       } finally {
