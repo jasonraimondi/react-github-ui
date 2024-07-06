@@ -8,3 +8,10 @@ export interface ContributorsProps {
   owner: string;
   repo: string;
 }
+
+export function fetcher(url: string) {
+  return fetch(url).then(res => {
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    return res.json();
+  });
+}

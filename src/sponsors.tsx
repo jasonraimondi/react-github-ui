@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import useSWR from "swr";
+import { fetcher } from "./index";
 
 interface Sponsor {
   username: string;
@@ -20,55 +21,33 @@ interface SponsorsProps {
 }
 
 export function Sponsors({ username }: SponsorsProps) {
-  const [sponsors, setSponsors] = useState<SponsorsData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isLoading } = useSWR<SponsorsResponse>(
+    `https://ghs.vercel.app/v3/sponsors/${username}`,
+    fetcher,
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 1000,
+    },
+  );
 
-  useEffect(() => {
-    const fetchSponsors = async () => {
-      try {
-        const response = await fetch(`https://ghs.vercel.app/v3/sponsors/${username}`, {
-          headers: {
-            "Cache-Control": "max-age=3600, stale-while-revalidate=3600",
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch sponsors");
-        }
-        const data: SponsorsResponse = await response.json();
-        if (data.status === "success") {
-          setSponsors(data.sponsors);
-        } else {
-          throw new Error("Failed to fetch sponsors");
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        setLoading(false);
-      }
-    };
+  if (isLoading) return <div aria-live="polite">Loading sponsors...</div>;
+  if (error) return <div aria-live="assertive">Error: {error.message}</div>;
+  if (!data || data.status !== "success") return <div>No sponsor data available.</div>;
 
-    fetchSponsors();
-  }, [username]);
-
-  if (loading) return <div>Loading sponsors...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!sponsors) return <div>No sponsor data available.</div>;
-
-  const all = [
-    ...(sponsors.current ? sponsors.current : []),
-    ...(sponsors.past ? sponsors.past : []),
-  ];
+  const sponsors = data.sponsors;
+  const all = [...(sponsors.current ?? []), ...(sponsors.past ?? [])];
 
   return (
     <>
-      {all && all.length > 0 ? (
-        <ul className="flex flex-wrap gap-4 list-none">
+      {all.length > 0 ? (
+        <ul className="flex flex-wrap gap-4 list-none" aria-label="Project sponsors">
           {all.map(sponsor => (
-            <li key={sponsor.username} className="">
+            <li key={sponsor.username}>
               <a
                 href={`https://github.com/${sponsor.username}`}
-                className="block"
+                className="block group"
                 title={`${sponsor.username}`}
               >
                 <img
@@ -76,6 +55,7 @@ export function Sponsors({ username }: SponsorsProps) {
                   alt={sponsor.username}
                   width="50"
                   height="50"
+                  loading="lazy"
                   className="rounded-full border-2 border-transparent group-hover:border-blue-500 transition-colors duration-200"
                 />
               </a>

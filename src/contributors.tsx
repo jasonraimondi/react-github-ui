@@ -1,11 +1,5 @@
 import useSWR from "swr";
-import { Contributor, ContributorsProps } from "./index";
-
-const fetcher = (url: string) =>
-  fetch(url).then(res => {
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    return res.json();
-  });
+import { Contributor, ContributorsProps, fetcher } from "./index";
 
 export function Contributors({ owner, repo }: ContributorsProps) {
   const { data, error, isLoading } = useSWR<Contributor[]>(
