@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
-import { getCachedData, setCachedData } from "./cache";
 import { Contributor, ContributorsProps } from "./index";
-
-const CACHE_KEY = "github_contributors";
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 export function Contributors({ owner, repo }: ContributorsProps) {
   const [contributors, setContributors] = useState<Contributor[]>([]);
@@ -13,15 +9,7 @@ export function Contributors({ owner, repo }: ContributorsProps) {
   useEffect(() => {
     const fetchContributors = async () => {
       try {
-        const cachedData = getCachedData(CACHE_KEY);
-        if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-          setContributors(cachedData.data);
-          setLoading(false);
-          // Revalidate in the background
-          fetchFromAPI();
-        } else {
-          await fetchFromAPI();
-        }
+        await fetchFromAPI();
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred");
         setLoading(false);
@@ -30,13 +18,16 @@ export function Contributors({ owner, repo }: ContributorsProps) {
 
     const fetchFromAPI = async () => {
       try {
-        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors`);
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors`, {
+          headers: {
+            "Cache-Control": "max-age=3600, stale-while-revalidate=3600",
+          },
+        });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: Contributor[] = await response.json();
         setContributors(data);
-        setCachedData(CACHE_KEY, data);
       } catch (err) {
         console.error("Error fetching from API:", err);
       } finally {

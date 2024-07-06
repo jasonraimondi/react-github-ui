@@ -27,7 +27,11 @@ export function Sponsors({ username }: SponsorsProps) {
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
-        const response = await fetch(`https://ghs.vercel.app/v3/sponsors/${username}`);
+        const response = await fetch(`https://ghs.vercel.app/v3/sponsors/${username}`, {
+          headers: {
+            "Cache-Control": "max-age=3600, stale-while-revalidate=3600",
+          },
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch sponsors");
         }
