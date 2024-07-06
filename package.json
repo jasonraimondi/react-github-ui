@@ -23,13 +23,13 @@
     "./style.css": "./dist/style.css",
     "./style.min.css": "./dist/style.min.css",
     "./contributors": {
-      "import": "./dist/contributors.js",
-      "require": "./dist/contributors.cjs",
+      "import": "./dist/contributors.mjs",
+      "require": "./dist/contributors.js",
       "types": "./dist/contributors.d.ts"
     },
     "./sponsors": {
-      "import": "./dist/sponsors.js",
-      "require": "./dist/sponsors.cjs",
+      "import": "./dist/sponsors.mjs",
+      "require": "./dist/sponsors.js",
       "types": "./dist/sponsors.d.ts"
     }
   },
