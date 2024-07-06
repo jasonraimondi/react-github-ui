@@ -1,7 +1,8 @@
 import useSWR from "swr";
 import { Contributor, ContributorsProps, fetcher } from "./index";
+import { useMemo } from "react";
 
-export function Contributors({ owner, repo }: ContributorsProps) {
+export function Contributors({ owner, repo, refreshInterval = 60 * 60 * 1000 }: ContributorsProps) {
   const { data, error, isLoading } = useSWR<Contributor[]>(
     `https://api.github.com/repos/${owner}/${repo}/contributors`,
     fetcher,
@@ -9,7 +10,7 @@ export function Contributors({ owner, repo }: ContributorsProps) {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      refreshInterval: 1000,
+      refreshInterval,
     },
   );
 
@@ -17,7 +18,9 @@ export function Contributors({ owner, repo }: ContributorsProps) {
   if (error) return <div aria-live="assertive">Error: {error.message}</div>;
   if (!data || data.length === 0) return <div>No contributors found.</div>;
 
-  const sortedContributors = [...data].sort((a, b) => b.contributions - a.contributions);
+  const sortedContributors = useMemo(() => {
+    return [...data].sort((a, b) => b.contributions - a.contributions);
+  }, [data]);
 
   return (
     <ul className="flex flex-wrap gap-4 list-none" aria-label="Project contributors">

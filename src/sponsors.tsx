@@ -18,9 +18,10 @@ interface SponsorsResponse {
 
 interface SponsorsProps {
   username: string;
+  refreshInterval?: number;
 }
 
-export function Sponsors({ username }: SponsorsProps) {
+export function Sponsors({ username, refreshInterval = 60 * 60 * 1000 }: SponsorsProps) {
   const { data, error, isLoading } = useSWR<SponsorsResponse>(
     `https://ghs.vercel.app/v3/sponsors/${username}`,
     fetcher,
@@ -28,7 +29,7 @@ export function Sponsors({ username }: SponsorsProps) {
       revalidateIfStale: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      refreshInterval: 1000,
+      refreshInterval,
     },
   );
 

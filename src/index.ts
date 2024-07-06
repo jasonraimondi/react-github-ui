@@ -7,6 +7,7 @@ export interface Contributor {
 export interface ContributorsProps {
   owner: string;
   repo: string;
+  refreshInterval?: number;
 }
 
 export function fetcher(url: string) {
