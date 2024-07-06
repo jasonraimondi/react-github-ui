@@ -18,9 +18,7 @@ export function Contributors({ owner, repo, refreshInterval = 60 * 60 * 1000 }: 
   if (error) return <div aria-live="assertive">Error: {error.message}</div>;
   if (!data || data.length === 0) return <div>No contributors found.</div>;
 
-  const sortedContributors = useMemo(() => {
-    return [...data].sort((a, b) => b.contributions - a.contributions);
-  }, [data]);
+  const sortedContributors = [...data].sort((a, b) => b.contributions - a.contributions);
 
   return (
     <ul className="flex flex-wrap gap-4 list-none" aria-label="Project contributors">
