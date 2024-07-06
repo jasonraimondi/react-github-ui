@@ -3,7 +3,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "react": "^18.3.1"
