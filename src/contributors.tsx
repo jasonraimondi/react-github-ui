@@ -21,6 +21,9 @@ export function Contributors({ owner, repo }: ContributorsProps) {
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contributors`, {
           headers: {
             "Cache-Control": "max-age=3600, stale-while-revalidate=3600",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, HEAD",
+            "Access-Control-Allow-Headers": "Content-Type",
           },
         });
         if (!response.ok) {
