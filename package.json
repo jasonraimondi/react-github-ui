@@ -2,6 +2,7 @@
   "name": "@jmondi/github-ui",
   "license": "MIT",
   "scripts": {
+    "build": "tsup",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -9,6 +10,32 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
-    "prettier": "^3.3.2"
-  }
+    "prettier": "^3.3.2",
+    "tsup": "^8.1.0",
+    "typescript": "^5.5.3"
+  },
+  "exports": {
+    "./contributors": {
+      "import": "./dist/contributors.js",
+      "require": "./dist/contributors.cjs",
+      "types": "./dist/contributors.d.ts"
+    },
+    "./sponsors": {
+      "import": "./dist/sponsors.js",
+      "require": "./dist/sponsors.cjs",
+      "types": "./dist/sponsors.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }

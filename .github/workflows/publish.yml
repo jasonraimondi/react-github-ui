@@ -1,0 +1,32 @@
+name: Publish
+
+on:
+  release:
+    types: [released, prereleased]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+          registry-url: "https://registry.npmjs.org"
+      - run: pnpm i --frozen-lockfile --production false
+      - name: Check Release type and Publish
+        run: |
+          if ${{ github.event.release.prerelease }}; then
+            echo "Publishing pre-release..."
+            pnpm publish --verbose --access=public --no-git-checks --tag next
+          else
+            echo "Publishing release..."
+            pnpm publish --verbose --access=public --no-git-checks
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}

@@ -19,7 +19,7 @@ interface SponsorsProps {
   username: string;
 }
 
-export function Sponsors({ username }) {
+export function Sponsors({ username }: SponsorsProps) {
   const [sponsors, setSponsors] = useState<SponsorsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

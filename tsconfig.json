@@ -3,7 +3,9 @@
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "declaration": true,
+    "strict": true
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
