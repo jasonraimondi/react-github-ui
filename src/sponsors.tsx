@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { fetcher } from "./index";
+import { useEffect, useState } from "react";
 
 interface Sponsor {
   username: string;
@@ -22,6 +23,8 @@ interface SponsorsProps {
 }
 
 export function Sponsors({ username, refreshInterval = 60 * 60 * 1000 }: SponsorsProps) {
+  const LOCAL_STORAGE_NAME = `${username}-sponsors`;
+
   const { data, error, isLoading } = useSWR<SponsorsResponse>(
     `https://ghs.vercel.app/v3/sponsors/${username}`,
     fetcher,
@@ -30,21 +33,36 @@ export function Sponsors({ username, refreshInterval = 60 * 60 * 1000 }: Sponsor
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval,
+      onSuccess: data => {
+        const sponsors = data.sponsors;
+        const all = [...(sponsors.current ?? []), ...(sponsors.past ?? [])];
+        setSponsors(all);
+      },
     },
   );
 
-  if (isLoading) return <div aria-live="polite">Loading sponsors...</div>;
-  if (error) return <div aria-live="assertive">Error: {error.message}</div>;
-  if (!data || data.status !== "success") return <div>No sponsor data available.</div>;
+  const [sponsors, setSponsors] = useState<Sponsor[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_NAME);
+    if (!saved) return [];
+    return JSON.parse(saved);
+  });
 
-  const sponsors = data.sponsors;
-  const all = [...(sponsors.current ?? []), ...(sponsors.past ?? [])];
+  useEffect(() => {
+    // storing input name
+    localStorage.setItem(LOCAL_STORAGE_NAME, JSON.stringify(sponsors));
+  }, [sponsors]);
+
+  if (sponsors.length === 0) {
+    if (isLoading) return <div aria-live="polite">Loading sponsors...</div>;
+    if (error) return <div aria-live="assertive">Error: {error.message}</div>;
+    if (!data || data.status !== "success") return <div>No sponsor data available.</div>;
+  }
 
   return (
     <>
-      {all.length > 0 ? (
+      {sponsors.length > 0 ? (
         <ul className="flex flex-wrap gap-4 list-none pl-0" aria-label="Project sponsors">
-          {all.map(sponsor => (
+          {sponsors.map(sponsor => (
             <li key={sponsor.username}>
               <a
                 href={`https://github.com/${sponsor.username}`}

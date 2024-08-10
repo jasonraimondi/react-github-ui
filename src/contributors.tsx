@@ -1,8 +1,10 @@
 import useSWR from "swr";
 import { Contributor, ContributorsProps, fetcher } from "./index";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function Contributors({ owner, repo, refreshInterval = 60 * 60 * 1000 }: ContributorsProps) {
+  const LOCAL_STORAGE_NAME = `${owner}-${repo}-contributors`;
+
   const { data, error, isLoading } = useSWR<Contributor[]>(
     `https://api.github.com/repos/${owner}/${repo}/contributors`,
     fetcher,
@@ -11,18 +13,33 @@ export function Contributors({ owner, repo, refreshInterval = 60 * 60 * 1000 }: 
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval,
+      onSuccess: data => {
+        const sortedContributors = [...data].sort((a, b) => b.contributions - a.contributions);
+        setContributors(sortedContributors);
+      },
     },
   );
 
-  if (isLoading) return <div aria-live="polite">Loading...</div>;
-  if (error) return <div aria-live="assertive">Error: {error.message}</div>;
-  if (!data || data.length === 0) return <div>No contributors found.</div>;
+  const [contributors, setContributors] = useState<Contributor[]>(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_NAME);
+    if (!saved) return [];
+    return JSON.parse(saved);
+  });
 
-  const sortedContributors = [...data].sort((a, b) => b.contributions - a.contributions);
+  useEffect(() => {
+    // storing input name
+    localStorage.setItem(LOCAL_STORAGE_NAME, JSON.stringify(contributors));
+  }, [contributors]);
+
+  if (contributors.length === 0) {
+    if (isLoading) return <div aria-live="polite">Loading...</div>;
+    if (error) return <div aria-live="assertive">Error: {error.message}</div>;
+    if (!data || data.length === 0) return <div>No contributors found.</div>;
+  }
 
   return (
     <ul className="flex flex-wrap gap-4 list-none pl-0" aria-label="Project contributors">
-      {sortedContributors.map(contributor => (
+      {contributors.map(contributor => (
         <li key={contributor.login}>
           <a
             href={`https://github.com/${contributor.login}`}
